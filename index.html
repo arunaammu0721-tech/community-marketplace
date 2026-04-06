@@ -394,4 +394,34 @@
       negotiable: document.getElementById("fNeg").checked,
       category: document.getElementById("fCat").value,
       location, contact, seller: "You",
-      description: document.getElementById("fDesc").value.trim() || "No des
+      description: document.getElementById("fDesc").value.trim() || "No description provided.",
+      daysAgo: 0
+    };
+    products.unshift(newItem);
+    closeSell();
+    renderProducts();
+    showToast("🎉 Your item is live on the marketplace!");
+    document.getElementById("fTitle").value = "";
+    document.getElementById("fPrice").value = "";
+    document.getElementById("fLocation").value = "";
+    document.getElementById("fContact").value = "";
+    document.getElementById("fDesc").value = "";
+  }
+
+  // Toast
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg; t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3000);
+  }
+
+  // Close modals on overlay click
+  document.getElementById("productModal").addEventListener("click", function(e) { if (e.target === this) closeModal(); });
+  document.getElementById("sellModal").addEventListener("click", function(e) { if (e.target === this) closeSell(); });
+
+  // Init
+  renderCategories();
+  renderProducts();
+</script>
+</body>
+</html>
