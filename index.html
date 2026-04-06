@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Community Marketplace</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#1a1a2e"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;600;700;800&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: #fdf9f5; }
+
+    /* HEADER */
+    header {
+      background: #1a1a2e; position: sticky; top: 0; z-index: 100;
+      padding: 0 16px; height: 60px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo-title { font-family: 'Playfair Display', serif; color: #f0e6d3; font-size: 16px; line-height: 1; }
+    .logo-sub { color: #a89070; font-size: 9px; letter-spacing: 0.1em; font-weight: 700; }
+    #signBtn {
+      background: transparent; color: #f0e6d3; border: 1px solid #a89070;
+      padding: 7px 14px; border-radius: 50px; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12px;
+    }
+    #signBtn.signed { background: #c9563c; border: none; }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 50%, #1a1a2e 100%);
+      padding: 36px 16px 44px; text-align: center;
+    }
+    .hero h1 { font-family: 'Playfair Display', serif; color: #f0e6d3; font-size: 26px; line-height: 1.3; margin-bottom: 10px; }
+    .hero p { color: #a89070; font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
+    .search-wrap { position: relative; max-width: 420px; margin: 0 auto; }
+    .search-wrap span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; }
+    #searchInput {
+      width: 100%; padding: 13px 16px 13px 42px; border-radius: 50px; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; color: #1a1a2e;
+      background: rgba(255,255,255,0.95); outline: none;
+    }
+
+    /* STATS */
+    .stats { background: #f0e6d3; padding: 8px 16px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .stats span { font-size: 11px; color: #7a6040; font-weight: 700; letter-spacing: 0.04em; }
+
+    /* CATEGORIES */
+    .categories { padding: 16px 16px 0; display: flex; gap: 8px; overflow-x: auto; }
+    .categories::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      padding: 6px 16px; border-radius: 50px; border: 1px solid #e8ddd0;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 700;
+      font-size: 11px; white-space: nowrap; background: #fff; color: #888;
+      transition: all 0.2s;
+    }
+    .cat-btn.active { background: #1a1a2e; color: #f0e6d3; border-color: #1a1a2e; }
+
+    /* GRID */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; padding: 16px; max-width: 1100px; margin: 0 auto; }
+    .card {
+      background: #fff; border-radius: 14px; overflow: hidden; cursor: pointer;
+      border: 1px solid #e8ddd0; transition: all 0.25s;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(180,140,100,0.18); }
+    .card-img {
+      background: linear-gradient(135deg, #f9f3ec, #f0e6d3);
+      height: 110px; display: flex; align-items: center; justify-content: center;
+      font-size: 46px; position: relative;
+    }
+    .cat-badge {
+      position: absolute; top: 8px; right: 8px; background: #c9563c;
+      color: #fff; font-size: 9px; font-weight: 700; padding: 2px 7px;
+      border-radius: 20px; letter-spacing: 0.04em;
+    }
+    .card-body { padding: 12px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .card-price { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+    .card-price.free { color: #2e7d4f; }
+    .card-price.paid { color: #c9563c; }
+    .card-meta { font-size: 11px; color: #999; display: flex; justify-content: space-between; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(26,26,46,0.55); backdrop-filter: blur(4px);
+      z-index: 1000; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 20px; max-width: 440px; width: 100%;
+      overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,0.25); position: relative;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-img {
+      background: linear-gradient(135deg, #f9f3ec, #f0e6d3);
+      height: 160px; display: flex; align-items: center; justify-content: center; font-size: 72px;
+    }
+    .modal-close {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(255,255,255,0.85); border: none; border-radius: 50%;
+      width: 34px; height: 34px; cursor: pointer; font-size: 16px;
+    }
+    .modal-body { padding: 20px; }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
+    .modal-price { font-size: 26px; font-weight: 800; margin-bottom: 10px; }
+    .modal-desc { font-size: 13px; color: #555; line-height: 1.7; margin-bottom: 14px; }
+    .modal-meta { font-size: 12px; color: #777; margin-bottom: 18px; display: flex; flex-wrap: wrap; gap: 10px; }
+    #contactBtn {
+      width: 100%; padding: 13px; background: #1a1a2e; color: #f0e6d3;
+      border: none; border-radius: 10px; font-family: 'Playfair Display', serif;
+      font-size: 14px; font-weight: 600; cursor: pointer; letter-spacing: 0.03em;
+    }
+    .contact-box {
+      display: none; background: #f9f3ec; border: 1px solid #e8ddd0;
+      border-radius: 10px; padding: 14px; text-align: center;
+    }
+    .contact-box.show { display: block; }
+    .contact-label { font-size: 10px; color: #999; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .contact-num { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #1a1a2e; }
+    .contact-note { font-size: 11px; color: #888; margin-top: 4px; }
+
+    /* SELL MODAL */
+    .sell-modal { background: #fff; border-radius: 20px; max-width: 440px; width: 100%; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+    .sell-header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .sell-header h2 { font-family: 'Playfair Display', serif; color: #f0e6d3; font-size: 18px; }
+    .sell-close { background: rgba(255,255,255,0.15); border: none; color: #fff; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 15px; }
+    .sell-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .field-label { font-size: 10px; font-weight: 700; color: #999; letter-spacing: 0.08em; margin-bottom: 5px; }
+    .field-input {
+      width: 100%; padding: 10px 12px; border: 1px solid #e8ddd0; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; color: #1a1a2e;
+      background: #fdf9f5; outline: none;
+    }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .emoji-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+    .emoji-opt {
+      font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 8px;
+      border: 2px solid transparent; transition: all 0.15s;
+    }
+    .emoji-opt.selected { background: #f0e6d3; border-color: #c9563c; }
+    #publishBtn {
+      width: 100%; padding: 13px; background: #c9563c; color: #fff;
+      border: none; border-radius: 10px; font-family: 'Playfair Display', serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+
+    /* TOAST */
+    #toast {
+      display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #1a1a2e; color: #f0e6d3; padding: 10px 22px; border-radius: 50px;
+      font-size: 13px; z-index: 9999; white-space: nowrap;
+    }
+    #toast.show { display: block; animation: slideUp 0.3s ease; }
+    @keyframes slideUp { from { opacity:0; transform: translateX(-50%) translateY(16px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+
+    footer { background: #1a1a2e; padding: 20px; text-align: center; margin-top: 20px; }
+    footer p { font-family: 'Playfair Display', serif; color: #f0e6d3; font-size: 14px; margin-bottom: 4px; }
+    footer small { color: #a89070; font-size: 11px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <span style="font-size:24px">🏘️</span>
+    <div>
+      <div class="logo-title">Community Market</div>
+      <div class="logo-sub">FREE · NO FEES · NO COMMISSIONS</div>
+    </div>
+  </div>
+  <button id="signBtn" onclick="handleSign()">Sign in with Google</button>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Sell what you have.<br/>Help your community.</h1>
+  <p>Free platform for families — zero fees, zero commissions.</p>
+  <div class="search-wrap">
+    <span>🔍</span>
+    <input id="searchInput" type="text" placeholder="Search items near you…" oninput="renderProducts()"/>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <span>🏷️ <span id="totalCount">6</span> Listings</span>
+  <span>💰 Zero Fees</span>
+  <span>🤝 Direct Contact</span>
+  <span>🔒 Google Sign-In</span>
+</div>
+
+<!-- CATEGORIES -->
+<div class="categories" id="categories"></div>
+
+<!-- GRID -->
+<div class="grid" id="productGrid"></div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-img" id="modalEmoji"></div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-body">
+      <div id="modalBadges" style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;"></div>
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-price" id="modalPrice"></div>
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-meta" id="modalMeta"></div>
+      <button id="contactBtn" onclick="revealContact()">Show Contact Number</button>
+      <div class="contact-box" id="contactBox">
+        <div class="contact-label">SELLER CONTACT</div>
+        <div class="contact-num" id="contactNum"></div>
+        <div class="contact-note">Contact directly to complete transaction</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SELL MODAL -->
+<div class="modal-overlay" id="sellModal">
+  <div class="sell-modal">
+    <div class="sell-header">
+      <h2>List an Item</h2>
+      <button class="sell-close" onclick="closeSell()">✕</button>
+    </div>
+    <div class="sell-body">
+      <div>
+        <div class="field-label">PICK AN ICON</div>
+        <div class="emoji-grid" id="emojiGrid"></div>
+      </div>
+      <div>
+        <div class="field-label">ITEM TITLE *</div>
+        <input class="field-input" id="fTitle" placeholder="e.g. Wooden Chair"/>
+      </div>
+      <div class="two-col">
+        <div>
+          <div class="field-label">PRICE (₹)</div>
+          <input class="field-input" id="fPrice" placeholder="Blank = Free"/>
+        </div>
+        <div>
+          <div class="field-label">CATEGORY</div>
+          <select class="field-input" id="fCat">
+            <option>Household</option><option>Clothing</option>
+            <option>Electronics</option><option>Handmade</option>
+            <option>Food</option><option>Books</option>
+            <option>Furniture</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="fNeg" style="width:16px;height:16px;cursor:pointer;"/>
+        <label for="fNeg" style="font-size:13px;color:#555;cursor:pointer;">Price is negotiable</label>
+      </div>
+      <div>
+        <div class="field-label">YOUR LOCATION *</div>
+        <input class="field-input" id="fLocation" placeholder="e.g. Velachery, Chennai"/>
+      </div>
+      <div>
+        <div class="field-label">YOUR CONTACT NUMBER *</div>
+        <input class="field-input" id="fContact" placeholder="e.g. +91 98400 12345"/>
+      </div>
+      <div>
+        <div class="field-label">DESCRIPTION</div>
+        <textarea class="field-input" id="fDesc" rows="3" placeholder="Describe the item's condition…"></textarea>
+      </div>
+      <button id="publishBtn" onclick="publishItem()">Publish Listing</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<footer>
+  <p>🏘️ Community Market</p>
+  <small>A free platform for low-income families · No commissions · No listing fees</small>
+</footer>
+
+<script>
+  const CATEGORIES = ["All","Household","Clothing","Electronics","Handmade","Food","Books","Furniture","Other"];
+  const EMOJIS = ["📦","🪑","📚","🪡","🔌","🫕","👕","🧸","🛏️","🎒","🖥️","🍳"];
+
+  let products = [
+    { id:1, title:"Wooden Dining Chair", price:"450", negotiable:true, category:"Furniture", location:"Tambaram, Chennai", seller:"Meena R.", contact:"+91 98400 11234", description:"Sturdy wooden chair in good condition, minor scratches on legs.", emoji:"🪑", daysAgo:1 },
+    { id:2, title:"Children's Story Books (Set of 8)", price:"Free", negotiable:false, category:"Books", location:"Velachery, Chennai", seller:"Rajan K.", contact:"+91 94440 56789", description:"Illustrated books for ages 4–8. All in excellent condition.", emoji:"📚", daysAgo:2 },
+    { id:3, title:"Hand-Stitched Bedsheet", price:"200", negotiable:true, category:"Handmade", location:"Ambattur, Chennai", seller:"Lakshmi S.", contact:"+91 90000 33456", description:"Handmade cotton bedsheet with floral embroidery.", emoji:"🪡", daysAgo:3 },
+    { id:4, title:"Old Mobile Charger (12W)", price:"80", negotiable:false, category:"Electronics", location:"Kodambakkam, Chennai", seller:"Arjun M.", contact:"+91 87000 99123", description:"Works perfectly. Original brand cable included.", emoji:"🔌", daysAgo:1 },
+    { id:5, title:"Steel Pressure Cooker (5L)", price:"350", negotiable:true, category:"Household", location:"Madipakkam, Chennai", seller:"Priya T.", contact:"+91 93800 77654", description:"Used for 2 years, gasket recently replaced.", emoji:"🫕", daysAgo:4 },
+    { id:6, title:"School Uniform Set (Class 6)", price:"150", negotiable:false, category:"Clothing", location:"Perambur, Chennai", seller:"Anbu D.", contact:"+91 77000 44321", description:"Outgrown by child. Washed and ironed. Size M.", emoji:"👕", daysAgo:2 }
+  ];
+
+  let activeCategory = "All";
+  let loggedIn = false;
+  let selectedEmoji = "📦";
+  let currentProduct = null;
+
+  // Render Categories
+  function renderCategories() {
+    const wrap = document.getElementById("categories");
+    wrap.innerHTML = CATEGORIES.map(c =>
+      `<button class="cat-btn ${c === activeCategory ? 'active' : ''}" onclick="setCategory('${c}')">${c}</button>`
+    ).join("");
+  }
+
+  function setCategory(cat) { activeCategory = cat; renderCategories(); renderProducts(); }
+
+  // Render Products
+  function renderProducts() {
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const filtered = products.filter(p => {
+      const matchCat = activeCategory === "All" || p.category === activeCategory;
+      const matchSearch = !search || p.title.toLowerCase().includes(search) || p.description.toLowerCase().includes(search);
+      return matchCat && matchSearch;
+    });
+    document.getElementById("totalCount").textContent = products.length;
+    const grid = document.getElementById("productGrid");
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#bbb"><div style="font-size:48px;margin-bottom:12px">🔍</div><div style="font-family:'Playfair Display',serif;font-size:18px;color:#999">No items found</div></div>`;
+      return;
+    }
+    grid.innerHTML = filtered.map(p => `
+      <div class="card" onclick="openProduct(${p.id})">
+        <div class="card-img">
+          <span>${p.emoji}</span>
+          <span class="cat-badge">${p.category}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">${p.title}</div>
+          <div class="card-price ${p.price === 'Free' ? 'free' : 'paid'}">${p.price === 'Free' ? 'FREE' : '₹' + p.price}</div>
+          <div class="card-meta"><span>📍 ${p.location}</span><span>${p.daysAgo === 0 ? 'Just now' : p.daysAgo + 'd ago'}</span></div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  // Open Product Modal
+  function openProduct(id) {
+    currentProduct = products.find(p => p.id === id);
+    if (!currentProduct) return;
+    document.getElementById("modalEmoji").textContent = currentProduct.emoji;
+    document.getElementById("modalTitle").textContent = currentProduct.title;
+    document.getElementById("modalPrice").textContent = currentProduct.price === "Free" ? "FREE" : "₹" + currentProduct.price;
+    document.getElementById("modalPrice").className = "modal-price " + (currentProduct.price === "Free" ? "free" : "paid");
+    document.getElementById("modalDesc").textContent = currentProduct.description;
+    document.getElementById("modalMeta").innerHTML = `<span>📍 ${currentProduct.location}</span><span>👤 ${currentProduct.seller}</span>`;
+    document.getElementById("modalBadges").innerHTML = `<span style="background:#fef0ec;color:#c9563c;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px">${currentProduct.category}</span>${currentProduct.negotiable ? '<span style="background:#f0f7f3;color:#2e7d4f;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px">Negotiable</span>' : ''}`;
+    document.getElementById("contactBtn").style.display = "block";
+    document.getElementById("contactBox").classList.remove("show");
+    document.getElementById("contactNum").textContent = currentProduct.contact;
+    document.getElementById("productModal").classList.add("open");
+  }
+
+  function closeModal() { document.getElementById("productModal").classList.remove("open"); }
+  function revealContact() {
+    document.getElementById("contactBtn").style.display = "none";
+    document.getElementById("contactBox").classList.add("show");
+  }
+
+  // Sign In
+  function handleSign() {
+    if (!loggedIn) {
+      loggedIn = true;
+      document.getElementById("signBtn").textContent = "+ Sell Item";
+      document.getElementById("signBtn").classList.add("signed");
+      showToast("✅ Signed in with Google");
+    } else {
+      openSell();
+    }
+  }
+
+  // Sell Modal
+  function openSell() {
+    const grid = document.getElementById("emojiGrid");
+    grid.innerHTML = EMOJIS.map(e => `<span class="emoji-opt ${e === selectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${e}')">${e}</span>`).join("");
+    document.getElementById("sellModal").classList.add("open");
+  }
+  function closeSell() { document.getElementById("sellModal").classList.remove("open"); }
+  function selectEmoji(e) {
+    selectedEmoji = e;
+    document.querySelectorAll(".emoji-opt").forEach(el => el.classList.toggle("selected", el.textContent === e));
+  }
+  function publishItem() {
+    const title = document.getElementById("fTitle").value.trim();
+    const location = document.getElementById("fLocation").value.trim();
+    const contact = document.getElementById("fContact").value.trim();
+    if (!title || !location || !contact) { showToast("⚠️ Fill all required fields!"); return; }
+    const newItem = {
+      id: Date.now(), title, emoji: selectedEmoji,
+      price: document.getElementById("fPrice").value.trim() || "Free",
+      negotiable: document.getElementById("fNeg").checked,
+      category: document.getElementById("fCat").value,
+      location, contact, seller: "You",
+      description: document.getElementById("fDesc").value.trim() || "No description provided.",
+      daysAgo: 0
+    };
+    products.unshift(newItem);
+    closeSell();
+    renderProducts();
+    showToast("🎉 Your item is live on the marketplace!");
+    document.getElementById("fTitle").value = "";
+    document.getElementById("fPrice").value = "";
+    document.getElementById("fLocation").value = "";
+    document.getElementById("fContact").value = "";
+    document.getElementById("fDesc").value = "";
+  }
+
+  // Toast
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg; t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3000);
+  }
+
+  // Close modals on overlay click
+  document.getElementById("productModal").addEventListener("click", function(e) { if (e.target === this) closeModal(); });
+  document.getElementById("sellModal").addEventListener("click", function(e) { if (e.target === this) closeSell(); });
+
+  // Init
+  renderCategories();
+  renderProducts();
+</script>
+</body>
+</html>
