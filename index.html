@@ -7,13 +7,11 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#1a1a2e"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;600;700;800&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'DM Sans', sans-serif; background: #fdf9f5; }
 
-    /* HEADER */
     header {
       background: #1a1a2e; position: sticky; top: 0; z-index: 100;
       padding: 0 16px; height: 60px; display: flex; align-items: center; justify-content: space-between;
@@ -28,7 +26,6 @@
     }
     #signBtn.signed { background: #c9563c; border: none; }
 
-    /* HERO */
     .hero {
       background: linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 50%, #1a1a2e 100%);
       padding: 36px 16px 44px; text-align: center;
@@ -43,22 +40,18 @@
       background: rgba(255,255,255,0.95); outline: none;
     }
 
-    /* STATS */
     .stats { background: #f0e6d3; padding: 8px 16px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
     .stats span { font-size: 11px; color: #7a6040; font-weight: 700; letter-spacing: 0.04em; }
 
-    /* CATEGORIES */
     .categories { padding: 16px 16px 0; display: flex; gap: 8px; overflow-x: auto; }
     .categories::-webkit-scrollbar { display: none; }
     .cat-btn {
       padding: 6px 16px; border-radius: 50px; border: 1px solid #e8ddd0;
       cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 700;
-      font-size: 11px; white-space: nowrap; background: #fff; color: #888;
-      transition: all 0.2s;
+      font-size: 11px; white-space: nowrap; background: #fff; color: #888; transition: all 0.2s;
     }
     .cat-btn.active { background: #1a1a2e; color: #f0e6d3; border-color: #1a1a2e; }
 
-    /* GRID */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; padding: 16px; max-width: 1100px; margin: 0 auto; }
     .card {
       background: #fff; border-radius: 14px; overflow: hidden; cursor: pointer;
@@ -66,14 +59,20 @@
     }
     .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(180,140,100,0.18); }
     .card-img {
+      height: 130px; position: relative; overflow: hidden;
       background: linear-gradient(135deg, #f9f3ec, #f0e6d3);
-      height: 110px; display: flex; align-items: center; justify-content: center;
-      font-size: 46px; position: relative;
+      display: flex; align-items: center; justify-content: center;
     }
+    .card-img img {
+      width: 100%; height: 100%; object-fit: cover; position: absolute;
+      transition: transform 0.3s ease;
+    }
+    .card:hover .card-img img { transform: scale(1.05); }
+    .emoji-fallback { font-size: 46px; z-index: 1; }
     .cat-badge {
       position: absolute; top: 8px; right: 8px; background: #c9563c;
       color: #fff; font-size: 9px; font-weight: 700; padding: 2px 7px;
-      border-radius: 20px; letter-spacing: 0.04em;
+      border-radius: 20px; letter-spacing: 0.04em; z-index: 2;
     }
     .card-body { padding: 12px; }
     .card-title { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
@@ -82,7 +81,6 @@
     .card-price.paid { color: #c9563c; }
     .card-meta { font-size: 11px; color: #999; display: flex; justify-content: space-between; }
 
-    /* MODAL */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
       background: rgba(26,26,46,0.55); backdrop-filter: blur(4px);
@@ -95,13 +93,15 @@
       max-height: 90vh; overflow-y: auto;
     }
     .modal-img {
+      height: 220px; overflow: hidden; position: relative;
       background: linear-gradient(135deg, #f9f3ec, #f0e6d3);
-      height: 160px; display: flex; align-items: center; justify-content: center; font-size: 72px;
+      display: flex; align-items: center; justify-content: center; font-size: 80px;
     }
+    .modal-img img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
     .modal-close {
       position: absolute; top: 12px; right: 12px;
-      background: rgba(255,255,255,0.85); border: none; border-radius: 50%;
-      width: 34px; height: 34px; cursor: pointer; font-size: 16px;
+      background: rgba(255,255,255,0.9); border: none; border-radius: 50%;
+      width: 34px; height: 34px; cursor: pointer; font-size: 16px; z-index: 10;
     }
     .modal-body { padding: 20px; }
     .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
@@ -111,18 +111,17 @@
     #contactBtn {
       width: 100%; padding: 13px; background: #1a1a2e; color: #f0e6d3;
       border: none; border-radius: 10px; font-family: 'Playfair Display', serif;
-      font-size: 14px; font-weight: 600; cursor: pointer; letter-spacing: 0.03em;
+      font-size: 14px; font-weight: 600; cursor: pointer;
     }
     .contact-box {
       display: none; background: #f9f3ec; border: 1px solid #e8ddd0;
-      border-radius: 10px; padding: 14px; text-align: center;
+      border-radius: 10px; padding: 14px; text-align: center; margin-top: 10px;
     }
     .contact-box.show { display: block; }
     .contact-label { font-size: 10px; color: #999; letter-spacing: 0.08em; margin-bottom: 4px; }
     .contact-num { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #1a1a2e; }
     .contact-note { font-size: 11px; color: #888; margin-top: 4px; }
 
-    /* SELL MODAL */
     .sell-modal { background: #fff; border-radius: 20px; max-width: 440px; width: 100%; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
     .sell-header { background: linear-gradient(135deg, #1a1a2e, #2d2d5e); padding: 20px; display: flex; justify-content: space-between; align-items: center; }
     .sell-header h2 { font-family: 'Playfair Display', serif; color: #f0e6d3; font-size: 18px; }
@@ -135,19 +134,24 @@
       background: #fdf9f5; outline: none;
     }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .emoji-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-    .emoji-opt {
-      font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 8px;
-      border: 2px solid transparent; transition: all 0.15s;
+
+    .img-upload-area {
+      border: 2px dashed #e8ddd0; border-radius: 10px; padding: 20px;
+      text-align: center; cursor: pointer; transition: all 0.2s; background: #fdf9f5;
     }
-    .emoji-opt.selected { background: #f0e6d3; border-color: #c9563c; }
+    .img-upload-area:hover { border-color: #c9563c; background: #fef0ec; }
+    .img-upload-area input { display: none; }
+    .img-preview { width: 100%; height: 160px; object-fit: cover; border-radius: 10px; display: none; }
+    .img-preview.show { display: block; }
+    .upload-placeholder { color: #bbb; font-size: 13px; }
+    .upload-placeholder span { font-size: 32px; display: block; margin-bottom: 6px; }
+
     #publishBtn {
       width: 100%; padding: 13px; background: #c9563c; color: #fff;
       border: none; border-radius: 10px; font-family: 'Playfair Display', serif;
       font-size: 14px; font-weight: 600; cursor: pointer;
     }
 
-    /* TOAST */
     #toast {
       display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       background: #1a1a2e; color: #f0e6d3; padding: 10px 22px; border-radius: 50px;
@@ -163,7 +167,6 @@
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
   <div class="logo">
     <span style="font-size:24px">🏘️</span>
@@ -175,7 +178,6 @@
   <button id="signBtn" onclick="handleSign()">Sign in with Google</button>
 </header>
 
-<!-- HERO -->
 <div class="hero">
   <h1>Sell what you have.<br/>Help your community.</h1>
   <p>Free platform for families — zero fees, zero commissions.</p>
@@ -185,7 +187,6 @@
   </div>
 </div>
 
-<!-- STATS -->
 <div class="stats">
   <span>🏷️ <span id="totalCount">6</span> Listings</span>
   <span>💰 Zero Fees</span>
@@ -193,17 +194,15 @@
   <span>🔒 Google Sign-In</span>
 </div>
 
-<!-- CATEGORIES -->
 <div class="categories" id="categories"></div>
-
-<!-- GRID -->
 <div class="grid" id="productGrid"></div>
 
 <!-- PRODUCT MODAL -->
 <div class="modal-overlay" id="productModal">
   <div class="modal">
-    <div class="modal-img" id="modalEmoji"></div>
-    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-img" id="modalImgWrap">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
     <div class="modal-body">
       <div id="modalBadges" style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;"></div>
       <div class="modal-title" id="modalTitle"></div>
@@ -229,8 +228,15 @@
     </div>
     <div class="sell-body">
       <div>
-        <div class="field-label">PICK AN ICON</div>
-        <div class="emoji-grid" id="emojiGrid"></div>
+        <div class="field-label">PRODUCT PHOTO — Tap to upload from your phone 📸</div>
+        <div class="img-upload-area" onclick="document.getElementById('imgFile').click()">
+          <input type="file" id="imgFile" accept="image/*" onchange="previewImage(event)"/>
+          <img class="img-preview" id="imgPreview"/>
+          <div class="upload-placeholder" id="uploadPlaceholder">
+            <span>📸</span>
+            Tap here to upload product photo
+          </div>
+        </div>
       </div>
       <div>
         <div class="field-label">ITEM TITLE *</div>
@@ -272,7 +278,6 @@
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <footer>
@@ -282,33 +287,55 @@
 
 <script>
   const CATEGORIES = ["All","Household","Clothing","Electronics","Handmade","Food","Books","Furniture","Other"];
-  const EMOJIS = ["📦","🪑","📚","🪡","🔌","🫕","👕","🧸","🛏️","🎒","🖥️","🍳"];
+
+  // Title keyword → Unsplash search term mapping
+  const IMAGE_MAP = {
+    "chair": "wooden+chair", "book": "books+stack", "bedsheet": "bedsheet+fabric",
+    "charger": "phone+charger", "cooker": "pressure+cooker", "uniform": "school+uniform",
+    "table": "wooden+table", "fan": "electric+fan", "shirt": "shirt+clothing",
+    "dress": "dress+clothing", "phone": "smartphone", "laptop": "laptop+computer",
+    "tv": "television", "bag": "handbag", "shoe": "shoes+footwear",
+    "toy": "children+toy", "cycle": "bicycle", "sofa": "sofa+couch",
+    "bed": "bed+bedroom", "vessel": "kitchen+utensil", "plate": "plate+kitchen",
+    "cup": "cup+mug", "mixer": "mixer+grinder", "iron": "clothes+iron",
+    "watch": "wristwatch", "clock": "wall+clock", "mirror": "wall+mirror",
+    "lamp": "table+lamp", "curtain": "window+curtain", "mat": "floor+mat",
+    "saree": "saree+fabric", "shirt": "cotton+shirt", "pant": "trousers",
+    "rice": "rice+food", "vegetable": "fresh+vegetables"
+  };
+
+  function getImageUrl(title) {
+    const lower = title.toLowerCase();
+    for (const key in IMAGE_MAP) {
+      if (lower.includes(key)) {
+        return `https://source.unsplash.com/400x300/?${IMAGE_MAP[key]}`;
+      }
+    }
+    const encoded = encodeURIComponent(title.split(" ").slice(0,2).join(" "));
+    return `https://source.unsplash.com/400x300/?${encoded}`;
+  }
 
   let products = [
-    { id:1, title:"Wooden Dining Chair", price:"450", negotiable:true, category:"Furniture", location:"Tambaram, Chennai", seller:"Meena R.", contact:"+91 98400 11234", description:"Sturdy wooden chair in good condition, minor scratches on legs.", emoji:"🪑", daysAgo:1 },
-    { id:2, title:"Children's Story Books (Set of 8)", price:"Free", negotiable:false, category:"Books", location:"Velachery, Chennai", seller:"Rajan K.", contact:"+91 94440 56789", description:"Illustrated books for ages 4–8. All in excellent condition.", emoji:"📚", daysAgo:2 },
-    { id:3, title:"Hand-Stitched Bedsheet", price:"200", negotiable:true, category:"Handmade", location:"Ambattur, Chennai", seller:"Lakshmi S.", contact:"+91 90000 33456", description:"Handmade cotton bedsheet with floral embroidery.", emoji:"🪡", daysAgo:3 },
-    { id:4, title:"Old Mobile Charger (12W)", price:"80", negotiable:false, category:"Electronics", location:"Kodambakkam, Chennai", seller:"Arjun M.", contact:"+91 87000 99123", description:"Works perfectly. Original brand cable included.", emoji:"🔌", daysAgo:1 },
-    { id:5, title:"Steel Pressure Cooker (5L)", price:"350", negotiable:true, category:"Household", location:"Madipakkam, Chennai", seller:"Priya T.", contact:"+91 93800 77654", description:"Used for 2 years, gasket recently replaced.", emoji:"🫕", daysAgo:4 },
-    { id:6, title:"School Uniform Set (Class 6)", price:"150", negotiable:false, category:"Clothing", location:"Perambur, Chennai", seller:"Anbu D.", contact:"+91 77000 44321", description:"Outgrown by child. Washed and ironed. Size M.", emoji:"👕", daysAgo:2 }
+    { id:1, title:"Wooden Dining Chair", price:"450", negotiable:true, category:"Furniture", location:"Tambaram, Chennai", seller:"Meena R.", contact:"+91 98400 11234", description:"Sturdy wooden chair in good condition, minor scratches on legs.", emoji:"🪑", daysAgo:1, image:null },
+    { id:2, title:"Children Story Books Set", price:"Free", negotiable:false, category:"Books", location:"Velachery, Chennai", seller:"Rajan K.", contact:"+91 94440 56789", description:"Illustrated books for ages 4–8. All in excellent condition.", emoji:"📚", daysAgo:2, image:null },
+    { id:3, title:"Hand Stitched Bedsheet", price:"200", negotiable:true, category:"Handmade", location:"Ambattur, Chennai", seller:"Lakshmi S.", contact:"+91 90000 33456", description:"Handmade cotton bedsheet with floral embroidery.", emoji:"🪡", daysAgo:3, image:null },
+    { id:4, title:"Mobile Phone Charger 12W", price:"80", negotiable:false, category:"Electronics", location:"Kodambakkam, Chennai", seller:"Arjun M.", contact:"+91 87000 99123", description:"Works perfectly. Original brand cable included.", emoji:"🔌", daysAgo:1, image:null },
+    { id:5, title:"Steel Pressure Cooker 5L", price:"350", negotiable:true, category:"Household", location:"Madipakkam, Chennai", seller:"Priya T.", contact:"+91 93800 77654", description:"Used for 2 years, gasket recently replaced.", emoji:"🫕", daysAgo:4, image:null },
+    { id:6, title:"School Uniform Set Class 6", price:"150", negotiable:false, category:"Clothing", location:"Perambur, Chennai", seller:"Anbu D.", contact:"+91 77000 44321", description:"Outgrown by child. Washed and ironed. Size M.", emoji:"👕", daysAgo:2, image:null }
   ];
 
   let activeCategory = "All";
   let loggedIn = false;
-  let selectedEmoji = "📦";
-  let currentProduct = null;
+  let uploadedImageData = null;
 
-  // Render Categories
   function renderCategories() {
-    const wrap = document.getElementById("categories");
-    wrap.innerHTML = CATEGORIES.map(c =>
-      `<button class="cat-btn ${c === activeCategory ? 'active' : ''}" onclick="setCategory('${c}')">${c}</button>`
+    document.getElementById("categories").innerHTML = CATEGORIES.map(c =>
+      `<button class="cat-btn ${c===activeCategory?'active':''}" onclick="setCategory('${c}')">${c}</button>`
     ).join("");
   }
 
   function setCategory(cat) { activeCategory = cat; renderCategories(); renderProducts(); }
 
-  // Render Products
   function renderProducts() {
     const search = document.getElementById("searchInput").value.toLowerCase();
     const filtered = products.filter(p => {
@@ -318,110 +345,42 @@
     });
     document.getElementById("totalCount").textContent = products.length;
     const grid = document.getElementById("productGrid");
-    if (filtered.length === 0) {
-      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#bbb"><div style="font-size:48px;margin-bottom:12px">🔍</div><div style="font-family:'Playfair Display',serif;font-size:18px;color:#999">No items found</div></div>`;
+    if (!filtered.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0">
+        <div style="font-size:48px;margin-bottom:12px">🔍</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;color:#999">No items found</div></div>`;
       return;
     }
-    grid.innerHTML = filtered.map(p => `
-      <div class="card" onclick="openProduct(${p.id})">
+    grid.innerHTML = filtered.map(p => {
+      const imgSrc = p.image || getImageUrl(p.title);
+      return `<div class="card" onclick="openProduct(${p.id})">
         <div class="card-img">
-          <span>${p.emoji}</span>
+          <img src="${imgSrc}" alt="${p.title}" onerror="this.style.display='none'"/>
+          <div class="emoji-fallback">${p.emoji}</div>
           <span class="cat-badge">${p.category}</span>
         </div>
         <div class="card-body">
           <div class="card-title">${p.title}</div>
-          <div class="card-price ${p.price === 'Free' ? 'free' : 'paid'}">${p.price === 'Free' ? 'FREE' : '₹' + p.price}</div>
-          <div class="card-meta"><span>📍 ${p.location}</span><span>${p.daysAgo === 0 ? 'Just now' : p.daysAgo + 'd ago'}</span></div>
+          <div class="card-price ${p.price==='Free'?'free':'paid'}">${p.price==='Free'?'FREE':'₹'+p.price}</div>
+          <div class="card-meta"><span>📍 ${p.location}</span><span>${p.daysAgo===0?'Just now':p.daysAgo+'d ago'}</span></div>
         </div>
-      </div>
-    `).join("");
+      </div>`;
+    }).join("");
   }
 
-  // Open Product Modal
   function openProduct(id) {
-    currentProduct = products.find(p => p.id === id);
-    if (!currentProduct) return;
-    document.getElementById("modalEmoji").textContent = currentProduct.emoji;
-    document.getElementById("modalTitle").textContent = currentProduct.title;
-    document.getElementById("modalPrice").textContent = currentProduct.price === "Free" ? "FREE" : "₹" + currentProduct.price;
-    document.getElementById("modalPrice").className = "modal-price " + (currentProduct.price === "Free" ? "free" : "paid");
-    document.getElementById("modalDesc").textContent = currentProduct.description;
-    document.getElementById("modalMeta").innerHTML = `<span>📍 ${currentProduct.location}</span><span>👤 ${currentProduct.seller}</span>`;
-    document.getElementById("modalBadges").innerHTML = `<span style="background:#fef0ec;color:#c9563c;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px">${currentProduct.category}</span>${currentProduct.negotiable ? '<span style="background:#f0f7f3;color:#2e7d4f;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px">Negotiable</span>' : ''}`;
-    document.getElementById("contactBtn").style.display = "block";
-    document.getElementById("contactBox").classList.remove("show");
-    document.getElementById("contactNum").textContent = currentProduct.contact;
-    document.getElementById("productModal").classList.add("open");
-  }
-
-  function closeModal() { document.getElementById("productModal").classList.remove("open"); }
-  function revealContact() {
-    document.getElementById("contactBtn").style.display = "none";
-    document.getElementById("contactBox").classList.add("show");
-  }
-
-  // Sign In
-  function handleSign() {
-    if (!loggedIn) {
-      loggedIn = true;
-      document.getElementById("signBtn").textContent = "+ Sell Item";
-      document.getElementById("signBtn").classList.add("signed");
-      showToast("✅ Signed in with Google");
-    } else {
-      openSell();
-    }
-  }
-
-  // Sell Modal
-  function openSell() {
-    const grid = document.getElementById("emojiGrid");
-    grid.innerHTML = EMOJIS.map(e => `<span class="emoji-opt ${e === selectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${e}')">${e}</span>`).join("");
-    document.getElementById("sellModal").classList.add("open");
-  }
-  function closeSell() { document.getElementById("sellModal").classList.remove("open"); }
-  function selectEmoji(e) {
-    selectedEmoji = e;
-    document.querySelectorAll(".emoji-opt").forEach(el => el.classList.toggle("selected", el.textContent === e));
-  }
-  function publishItem() {
-    const title = document.getElementById("fTitle").value.trim();
-    const location = document.getElementById("fLocation").value.trim();
-    const contact = document.getElementById("fContact").value.trim();
-    if (!title || !location || !contact) { showToast("⚠️ Fill all required fields!"); return; }
-    const newItem = {
-      id: Date.now(), title, emoji: selectedEmoji,
-      price: document.getElementById("fPrice").value.trim() || "Free",
-      negotiable: document.getElementById("fNeg").checked,
-      category: document.getElementById("fCat").value,
-      location, contact, seller: "You",
-      description: document.getElementById("fDesc").value.trim() || "No description provided.",
-      daysAgo: 0
-    };
-    products.unshift(newItem);
-    closeSell();
-    renderProducts();
-    showToast("🎉 Your item is live on the marketplace!");
-    document.getElementById("fTitle").value = "";
-    document.getElementById("fPrice").value = "";
-    document.getElementById("fLocation").value = "";
-    document.getElementById("fContact").value = "";
-    document.getElementById("fDesc").value = "";
-  }
-
-  // Toast
-  function showToast(msg) {
-    const t = document.getElementById("toast");
-    t.textContent = msg; t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 3000);
-  }
-
-  // Close modals on overlay click
-  document.getElementById("productModal").addEventListener("click", function(e) { if (e.target === this) closeModal(); });
-  document.getElementById("sellModal").addEventListener("click", function(e) { if (e.target === this) closeSell(); });
-
-  // Init
-  renderCategories();
-  renderProducts();
-</script>
-</body>
-</html>
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    const imgSrc = p.image || getImageUrl(p.title);
+    document.getElementById("modalImgWrap").innerHTML =
+      `<button class="modal-close" onclick="closeModal()">✕</button>
+       <img src="${imgSrc}" alt="${p.title}" onerror="this.style.display='none'"/>
+       <div style="font-size:80px;z-index:1">${p.emoji}</div>`;
+    document.getElementById("modalTitle").textContent = p.title;
+    document.getElementById("modalPrice").textContent = p.price==="Free"?"FREE":"₹"+p.price;
+    document.getElementById("modalPrice").className = "modal-price "+(p.price==="Free"?"free":"paid");
+    document.getElementById("modalDesc").textContent = p.description;
+    document.getElementById("modalMeta").innerHTML = `<span>📍 ${p.location}</span><span>👤 ${p.seller}</span>`;
+    document.getElementById("modalBadges").innerHTML =
+      `<span style="background:#fef0ec;color:#c9563c;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px">${p.category}</span>
+       ${p.negotiable?'<span style="bac
